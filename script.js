@@ -1,93 +1,91 @@
 const userTab = document.querySelector("[data-userWeather]");
 const searchTab = document.querySelector("[data-searchWeather]");
-const userContainer = document.querySelector(".weather-container");
 
-const grantAccessConatiner = document.querySelector(
+const grantAccessContainer = document.querySelector(
   ".grant-location-container",
 );
 const searchForm = document.querySelector("[data-searchForm]");
-const loadingScreen = document.querySelector(".loading-conatainer");
+const loadingScreen = document.querySelector(".loading-container");
+const notFoundContainer = document.querySelector(".not-found-container");
 const userInfoContainer = document.querySelector(".user-info-container");
 
+const grantAccessButton = document.querySelector("[data-grantAccess]");
+const searchInput = document.querySelector("[data-searchInput]");
+
+const API_KEY = "ffd19ebe29088155f824f5a98977f50e";
+
 let currentTab = userTab;
-const API_key = "ffd19ebe29088155f824f5a98977f50e";
-// css ppts of current tab
 currentTab.classList.add("current-tab");
+
+/* ---------- init ---------- */
 getFromSessionStorage();
 
-userTab.addEventListener("click", () => {
-  // pass clicked tab as i/p parameter
-  switchTab(userTab);
-});
-
-searchTab.addEventListener("click", () => {
-  // pass clicked tab as i/p parameter
-  switchTab(searchTab);
-});
+/* ---------- tab events ---------- */
+userTab.addEventListener("click", () => switchTab(userTab));
+searchTab.addEventListener("click", () => switchTab(searchTab));
 
 function switchTab(clickedTab) {
-  if (clickedTab !== currentTab) {
-    // tab bg color remove
-    currentTab.classList.remove("current-tab");
-    currentTab = clickedTab;
-    currentTab.classList.add("current-tab");
+  if (clickedTab === currentTab) return;
 
-    // mai konse tab pe khada huu??
-    if (!searchForm.classList.contains("active")) {
-      // Switch from User Weather -> Search Weather
-      userInfoContainer.classList.remove("active");
-      grantAccessConatiner.classList.remove("active");
-      searchForm.classList.add("active");
-    } else {
-      // Switch from Search Weather -> User Weather
-      searchForm.classList.remove("active");
-      userInfoContainer.classList.remove("active");
+  currentTab.classList.remove("current-tab");
+  currentTab = clickedTab;
+  currentTab.classList.add("current-tab");
 
-      // localstorage se weather aayga on which coordinates you are right now on
-      getFromSessionStorage();
-    }
+  if (!searchForm.classList.contains("active")) {
+    // Your Weather → Search Weather
+    userInfoContainer.classList.remove("active");
+    grantAccessContainer.classList.remove("active");
+    notFoundContainer.classList.remove("active");
+    searchForm.classList.add("active");
+  } else {
+    // Search Weather → Your Weather
+    searchForm.classList.remove("active");
+    userInfoContainer.classList.remove("active");
+    notFoundContainer.classList.remove("active");
+    getFromSessionStorage();
   }
 }
 
-// check if coordinates are already present in session storage
+/* ---------- session storage ---------- */
 function getFromSessionStorage() {
   const localCoordinates = sessionStorage.getItem("user-coordinates");
 
-  // if local coordinates nhi mile
   if (!localCoordinates) {
-    grantAccessConatiner.classList.add("active");
+    grantAccessContainer.classList.add("active");
   } else {
     const coordinates = JSON.parse(localCoordinates);
     fetchUserWeatherInfo(coordinates);
   }
 }
 
-//// async means in below function there is stuff that will take time to return, till then run rest code in background, whereas in promise 1st data will resolve then, then(response) wala block chalega
+/* ---------- fetch: user (coords) ---------- */
 async function fetchUserWeatherInfo(coordinates) {
   const { latitude, longitude } = coordinates;
-  // make grant container invisible
-  grantAccessConatiner.classList.remove("active");
-  // make loader visible
+
+  grantAccessContainer.classList.remove("active");
+  notFoundContainer.classList.remove("active");
   loadingScreen.classList.add("active");
 
-  // API CALL
   try {
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_key}`,
+      `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`,
     );
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
     const data = await response.json();
     loadingScreen.classList.remove("active");
     userInfoContainer.classList.add("active");
-
-    // render and putin data on UI
     renderWeatherInfo(data);
   } catch (error) {
+    console.error(error);
     loadingScreen.classList.remove("active");
+    notFoundContainer.classList.add("active");
   }
 }
 
+/* ---------- render ---------- */
 function renderWeatherInfo(weatherInfo) {
-  /// firstly we have to fetch the element
   const cityName = document.querySelector("[data-cityName]");
   const countryIcon = document.querySelector("[data-countryIcon]");
   const desc = document.querySelector("[data-weatherDesc]");
@@ -97,25 +95,22 @@ function renderWeatherInfo(weatherInfo) {
   const humidity = document.querySelector("[data-humidity]");
   const cloudiness = document.querySelector("[data-cloudiness]");
 
-  // fetch values from weather info project and put in UI
-  // optional chaining (?.) agar json mei ppt exist karti hai to andar chale jao, or else return undefined
-  cityName.innerText = weatherInfo?.name;
+  cityName.innerText = weatherInfo?.name ?? "";
   countryIcon.src = `https://flagcdn.com/144x108/${weatherInfo?.sys?.country?.toLowerCase()}.png`;
-  desc.innerText = weatherInfo?.weather?.[0]?.description;
+  desc.innerText = weatherInfo?.weather?.[0]?.description ?? "";
   weatherIcon.src = `https://openweathermap.org/img/w/${weatherInfo?.weather?.[0]?.icon}.png`;
-  temp.innerText = weatherInfo?.main?.temp;
-  windSpeed.innerText = weatherInfo?.wind?.speed;
-  humidity.innerText = weatherInfo?.main?.humidity;
-  cloudiness.innerText = weatherInfo?.clouds?.all;
+  temp.innerText = `${weatherInfo?.main?.temp ?? "--"} °C`;
+  windSpeed.innerText = `${weatherInfo?.wind?.speed ?? "--"} m/s`;
+  humidity.innerText = `${weatherInfo?.main?.humidity ?? "--"} %`;
+  cloudiness.innerText = `${weatherInfo?.clouds?.all ?? "--"} %`;
 }
 
-// Browswr geolocation API
+/* ---------- geolocation ---------- */
 function getLocation() {
-  // does geoloaction feature is in support ?
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(showPosition);
   } else {
-    alert(`No GeoLocation Support`);
+    alert("No Geolocation Support");
   }
 }
 
@@ -129,35 +124,45 @@ function showPosition(position) {
   fetchUserWeatherInfo(userCoordinates);
 }
 
-const grantAccessButton = document.querySelector("[data-grantAccess]");
 grantAccessButton.addEventListener("click", getLocation);
 
-const serachInput = document.querySelector("[data-searchInput]");
+/* ---------- search ---------- */
 searchForm.addEventListener("submit", (event) => {
-  // prevent default method, built in method
   event.preventDefault();
-  let cityName = serachInput.value;
-  if (cityName === "") {
-    return;
-  } else {
-    fetchSearchWeatherInfo(cityName);
-  }
+  const cityName = searchInput.value.trim();
+
+  if (cityName === "") return;
+
+  fetchSearchWeatherInfo(cityName);
 });
 
 async function fetchSearchWeatherInfo(city) {
   loadingScreen.classList.add("active");
   userInfoContainer.classList.remove("active");
-  grantAccessConatiner.classList.remove("active");
+  grantAccessContainer.classList.remove("active");
+  notFoundContainer.classList.remove("active");
 
   try {
-    const response = await fetch(                        
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_key}`
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`,
     );
+
+    // 404 check MUST come before response.json()
+    if (response.status === 404) {
+      loadingScreen.classList.remove("active");
+      notFoundContainer.classList.add("active");
+      return;
+    }
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
     const data = await response.json();
     loadingScreen.classList.remove("active");
     userInfoContainer.classList.add("active");
     renderWeatherInfo(data);
   } catch (error) {
+    console.error(error);
     loadingScreen.classList.remove("active");
+    notFoundContainer.classList.add("active");
   }
 }
