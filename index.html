@@ -4,51 +4,60 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weather App</title>
+
     <link rel="stylesheet" href="style.css" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
     <script src="script.js" defer></script>
   </head>
+
   <body>
     <div class="wrapper">
       <h1>WEATHER APPLICATION</h1>
 
       <div class="tab-container">
         <p class="tab" data-userWeather>Your weather</p>
-        <p class="tab" data-searchWeather>Serach weather</p>
+        <p class="tab" data-searchWeather>Search weather</p>
       </div>
 
       <div class="weather-container">
+
         <!-- grant location -->
         <div class="sub-container grant-location-container">
           <img
             src="./assets/location.png"
-            alt="location"
+            alt="Location"
             width="80"
             height="80"
             loading="lazy"
           />
-          <p>grant location access</p>
+
+          <p>Grant location access</p>
           <p>Allow access to weather information</p>
-          <button class="btn" data-grantAccess>Grant Access</button>
+
+          <button class="btn" data-grantAccess>
+            Grant Access
+          </button>
         </div>
 
-        <!-- serach weather section -->
-        <form action="" class="form-container" data-searchForm>
+        <!-- search weather section -->
+        <form class="form-container" data-searchForm>
           <input
             type="text"
-            placeholder="Sreach for city...."
+            placeholder="Search for city..."
             data-searchInput
           />
-          <button class="btn">
+
+          <button class="btn" type="submit">
             <img
               src="./assets/search.png"
-              alt=""
-              type="submit"
+              alt="Search"
               width="20"
               height="20"
               loading="lazy"
@@ -58,7 +67,13 @@
 
         <!-- loading screen container -->
         <div class="loading-container">
-          <img src="./assets/loading.gif" alt="" width="150" height="150" />
+          <img
+            src="./assets/loading.gif"
+            alt="Loading"
+            width="150"
+            height="150"
+          />
+
           <p>Loading...</p>
         </div>
 
@@ -70,50 +85,55 @@
             width="120"
             height="120"
           />
+
           <p>City not found</p>
         </div>
 
         <!-- show weather info -->
         <div class="sub-container user-info-container">
+
           <!-- city name and flag -->
           <div class="name">
             <p data-cityName></p>
-            <img data-countryIcon />
+            <img data-countryIcon alt="Country flag" />
           </div>
 
           <!-- weather description -->
           <p data-weatherDesc></p>
 
           <!-- weather icon -->
-          <img data-weatherIcon />
+          <img data-weatherIcon alt="Weather condition" />
 
           <!-- temperature -->
           <p data-temp></p>
 
-          <!-- 3 cards parameter -->
+          <!-- 3 parameter cards -->
           <div class="parameter-container">
-            <!-- card1 -->
+
+            <!-- card 1 -->
             <div class="parameter">
-              <img src="./assets/wind.png" alt="" />
+              <img src="./assets/wind.png" alt="Wind speed" />
               <p>Windspeed</p>
               <p data-windSpeed></p>
             </div>
 
-            <!-- card2 -->
+            <!-- card 2 -->
             <div class="parameter">
-              <img src="./assets/humidity.png" alt="" />
+              <img src="./assets/humidity.png" alt="Humidity" />
               <p>Humidity</p>
               <p data-humidity></p>
             </div>
 
-            <!-- card3 -->
+            <!-- card 3 -->
             <div class="parameter">
-              <img src="./assets/cloud.png" alt="" />
+              <img src="./assets/cloud.png" alt="Cloudiness" />
               <p>Clouds</p>
               <p data-cloudiness></p>
             </div>
+
           </div>
         </div>
+
       </div>
     </div>
   </body>
